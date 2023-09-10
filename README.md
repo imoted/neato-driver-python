@@ -1,3 +1,8 @@
+# note
+
+* change the sensor parse method for Botvac Dseries
+* add exception for LDS data receive error
+
 # neato-driver-python
 
 This repo contains a python driver for Neato brand robot vacuums. Use this driver to control a Neato robot using the USB port.
@@ -8,6 +13,7 @@ This driver is used in the [neato-ros](https://github.com/brannonvann/neato) pro
 
 ### Table of Contents
 
+- [note](#note)
 - [neato-driver-python](#neato-driver-python)
     - [Table of Contents](#table-of-contents)
   - [Getting Started](#getting-started)

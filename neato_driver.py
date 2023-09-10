@@ -154,28 +154,34 @@ def __parse_response(
     allInt=False,
     allFloat=False,
     allBool=False,
+    getAnalogSensors=False,
 ):
     # Parses response from neato and returns formatted result
     results = dict()
 
     for line in lines[2:]:
 
-        parts = line.split(",")
+        try:
+            parts = line.split(",")
 
-        if parts[0].isnumeric():
-            # Handle Laser Data
-            results[int(parts[0])] = [int(parts[1]),
-                                      int(parts[2]), int(parts[3])]
-            continue
+            if parts[0].isnumeric():
+                # Handle Laser Data
+                results[int(parts[0])] = [int(parts[1]),
+                                        int(parts[2]), int(parts[3])]
+                continue
 
-        if allInt or (intKeys and parts[0] in intKeys):
-            results[parts[0]] = int(parts[1])
-        elif allFloat or (floatKeys and parts[0] in floatKeys):
-            results[parts[0]] = float(parts[1])
-        elif allBool or (boolKeys and parts[0] in boolKeys):
-            results[parts[0]] = parts[1] == "1"
-        else:
-            results[parts[0]] = parts[1]
+            if getAnalogSensors:
+                results[parts[0] + parts[1]] = int(parts[2])
+            elif allInt or (intKeys and parts[0] in intKeys):
+                results[parts[0]] = int(parts[1])
+            elif allFloat or (floatKeys and parts[0] in floatKeys):
+                results[parts[0]] = float(parts[1])
+            elif allBool or (boolKeys and parts[0] in boolKeys):
+                results[parts[0]] = parts[1] == "1"
+            else:
+                results[parts[0]] = parts[1]
+        except:
+            pass
     return results
 
 
@@ -297,7 +303,7 @@ def GetAnalogSensors(raw=False, stats=False):
         "GetAnalogSensors" + (" raw" if raw else "") +
         (" stats" if stats else "")
     )
-    return __parse_response(results, allInt=True)
+    return __parse_response(results, allInt=True, getAnalogSensors=True)
 
 
 def GetButtons():
@@ -417,7 +423,12 @@ def GetLDSScan():
     """
 
     results = __write("GetLDSScan")
-    return __parse_response(results, floatKeys=["ROTATION_SPEED"])
+    ret = __parse_response(results, floatKeys=["ROTATION_SPEED"])
+    for i in range(0, 360):
+        # if not exist in ret, then init to [0,0,0 ]
+        if i not in ret:
+            ret[i] = [0, 0, 0]
+    return ret
 
 
 def GetLifeStatLog():
